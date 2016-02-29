@@ -7,6 +7,7 @@ import platform = require("platform");
 
 import {ProxyViewContainer} from "ui/proxy-view-container";
 import {View, Button, LayoutBase, StackLayout, GridLayout, Page, ScrollView, TabView, TabViewItem} from "ui";
+import {ListView} from "ui/list-view";
 
 export function test_add_children_to_attached_proxy() {
     var outer = new StackLayout();
@@ -221,6 +222,25 @@ export function test_proxy_iniside_border() {
     };
 
     helper.buildUIAndRunTest(scroll, testAction);
+}
+
+export function test_proxy_iniside_listview_itemtemplate_crash() {
+    // Usually reproducible with an Angular component in the template
+    // We use a simple declaration here to simulate it.
+    var list = new ListView();
+    list.items = ["item 1"];
+    list.itemTemplate = `
+    <ProxyViewContainer>
+        <Label text="{{$value}}"></Label>
+    </ProxyViewContainer>
+    `;
+
+    function testAction(views: Array<viewModule.View>) {
+        var page = <Page>views[1];
+        waitUntilElementLayoutIsValid(page);
+    };
+
+    helper.buildUIAndRunTest(list, testAction);
 }
 
 // TODO: Proxy as a direct child to of TabItem is not supported. Not sure if we want to support it.
